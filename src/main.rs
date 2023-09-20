@@ -14,6 +14,7 @@ mod handlers;
 
 pub struct AppState {
     todos: Mutex<Vec<String>>,
+    nav_items: Mutex<NavItems>,
 }
 
 #[tokio::main]
@@ -23,12 +24,20 @@ async fn main() -> anyhow::Result<()> {
             tracing_subscriber::EnvFilter::try_from_default_env()
                 .unwrap_or_else(|_| "with_axum_htmx_askama=debug".into()),
         )
-        .with(tracing_subscriber::fmt::layer())
+        .with(
+            tracing_subscriber::fmt::layer()
+                .with_level(true) // don't include levels in formatted output
+                .with_target(true) // don't include targets
+                .with_thread_ids(false) // include the thread ID of the current thread
+                .with_thread_names(true)
+                .compact(),
+        ) // include the name of the current thread
         .init();
     info!("Initialising router....");
 
     let app_state = Arc::new(AppState {
         todos: Mutex::new(vec![]),
+        nav_items: Mutex::new(NavItems::default()),
     });
 
     let assets_path = std::env::current_dir().unwrap();
@@ -37,6 +46,7 @@ async fn main() -> anyhow::Result<()> {
         .route("/hello", get(hello_from_the_server))
         .route("/todos", post(add_todo))
         .route("/todos", get(get_todos))
+        .route("/nav_items", get(navbar_items))
         .with_state(app_state);
 
     let router = Router::new()
