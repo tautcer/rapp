@@ -27,7 +27,7 @@ async fn main() -> anyhow::Result<()> {
     tracing_subscriber::registry()
         .with(
             tracing_subscriber::EnvFilter::try_from_default_env()
-                .unwrap_or_else(|_| "with_axum_htmx_askama=debug".into()),
+                .unwrap_or_else(|_| "rapp=debug".into()),
         )
         .with(
             tracing_subscriber::fmt::layer()
