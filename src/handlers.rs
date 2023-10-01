@@ -24,9 +24,9 @@ pub async fn another_page() -> impl IntoResponse {
 
 pub async fn navbar_items(State(state): State<Arc<AppState>>) -> impl IntoResponse {
     debug!("rendering navbar");
-    let lock = state.nav_items.lock().unwrap();
+    let lock = state.page_data.lock().unwrap();
     let items = lock.clone();
-    let template = NavItems { items: items.items };
+    let template = NavItems { items: items.nav_items.items };
     HtmlTemplate("navbar", template)
 }
 
@@ -83,21 +83,21 @@ pub async fn add_todo(
     Form(todo): Form<TodoRequest>,
 ) -> impl IntoResponse {
     debug!("add-todo called");
-    let mut lock = state.todos.lock().unwrap();
-    lock.push(todo.todo);
+    let mut lock = state.page_data.lock().unwrap();
+    lock.todos.push(todo.todo);
 
     let template = TodoList {
-        todos: lock.clone(),
+        todos: lock.todos.clone(),
     };
 
     HtmlTemplate("add-todo", template)
 }
 
 pub async fn get_todos(State(state): State<Arc<AppState>>) -> impl IntoResponse {
-    let lock = state.todos.lock().unwrap();
+    let lock = state.page_data.lock().unwrap();
 
     let template = TodoList {
-        todos: lock.clone(),
+        todos: lock.todos.clone(),
     };
 
     HtmlTemplate("todos", template)
@@ -110,6 +110,15 @@ struct AnotherPageTemplate;
 #[derive(Template)]
 #[template(path = "hello.html")]
 struct HelloTemplate;
+
+#[derive(Template)]
+#[template(path = "error.html")]
+pub struct ErrorTemplate;
+
+pub async fn global_not_found() -> impl IntoResponse {
+    let template = ErrorTemplate {};
+    HtmlTemplate("error", template)
+}
 
 struct HtmlTemplate<'a, T>(&'a str, T);
 

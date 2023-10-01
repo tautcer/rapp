@@ -12,9 +12,14 @@ use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
 mod handlers;
 
+#[derive(Clone)]
+pub struct PageData {
+    todos: Vec<String>,
+    nav_items: NavItems,
+}
+
 pub struct AppState {
-    todos: Mutex<Vec<String>>,
-    nav_items: Mutex<NavItems>,
+    page_data: Mutex<PageData>,
 }
 
 #[tokio::main]
@@ -36,8 +41,10 @@ async fn main() -> anyhow::Result<()> {
     info!("Initialising router....");
 
     let app_state = Arc::new(AppState {
-        todos: Mutex::new(vec![]),
-        nav_items: Mutex::new(NavItems::default()),
+        page_data: Mutex::new(PageData {
+            todos: vec![],
+            nav_items: NavItems::default(),
+        }),
     });
 
     let assets_path = std::env::current_dir().unwrap();
@@ -53,6 +60,7 @@ async fn main() -> anyhow::Result<()> {
         .nest("/api", api_router)
         .route("/", get(hello))
         .route("/another-page", get(another_page))
+        .fallback(global_not_found)
         .nest_service(
             "/assets",
             ServeDir::new(format!("{}/assets", assets_path.to_str().unwrap())),
