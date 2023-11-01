@@ -11,40 +11,24 @@
   <script src="https://unpkg.com/htmx.org@1.9.5"></script>
   <!-- <script src="../assets/theme-toggle.js"></script> -->
   <script>
-// On page load or when changing themes, best to add inline in `head` to avoid FOUC
-if (localStorage.'color-theme' === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-  document.documentElement.classList.add('dark');
-} else {
-  document.documentElement.classList.remove('dark');
-};
+    (function () {
+        var userCurrentPreference = localStorage.getItem("theme");
+        if (userCurrentPreference === "dark") document.documentElement.classList.toggle("dark");
+        else if (userCurrentPreference === "light") document.documentElement.classList.toggle("light");
+    })();
 
-function setDarkTheme() {
-  document.documentElement.classList.add("dark");
-  localStorage.'color-theme' = "dark";
-};
+    function onThemeSwitcherItemClick() {
+      const userSystemPreference = window.matchMedia('(prefers-color-scheme: dark)').matches ? "dark" : "light";
+      const toggleClass = userSystemPreference === "dark" ? "light" : "dark";
+      document.documentElement.classList.toggle(toggleClass);
 
-function setLightTheme() {
-  document.documentElement.classList.remove("dark");
-  localStorage.'color-theme' = "light";
-};
-
-function onThemeSwitcherItemClick(event) {
-  const theme = event.target.dataset.theme;
-
-  if (theme === "system") {
-    localStorage.removeItem("color-theme");
-    setSystemTheme();
-  } else if (theme === "dark") {
-    setDarkTheme();
-  } else {
-    setLightTheme();
-  }
-};
-
-const themeSwitcherItems = document.querySelectorAll("#theme-toggle");
-themeSwitcherItems.forEach((item) => {
-  item.addEventListener("click", onThemeSwitcherItemClick);
-});
+      // Obtain which is the user's current preference for our website
+      const userCurrentPreference = document.documentElement.classList.contains(toggleClass)
+        ? toggleClass
+        : userSystemPreference;
+      // Save it in local storage
+      localStorage.setItem("theme", userCurrentPreference);
+    };
   </script>
   <!-- Allow any inheriting page to extend head with additional assets -->
   {% block head %}{% endblock %}
