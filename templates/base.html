@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" class="dark">
+<html lang="en">
 
 <head>
   <link href="/assets/main.css" rel="stylesheet" />
@@ -9,19 +9,43 @@
 
   <!-- htmx from the unpkg CDN - your mileage may vary -->
   <script src="https://unpkg.com/htmx.org@1.9.5"></script>
+  <!-- <script src="../assets/theme-toggle.js"></script> -->
   <script>
-    // It's best to inline this in `head` to avoid FOUC (flash of unstyled content) when changing pages or themes
-    if (
-      localStorage.getItem('color-theme') === 'dark' ||
-      (!('color-theme' in localStorage) &&
-        window.matchMedia('(prefers-color-scheme: dark)').matches)
-    ) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  </script>
+// On page load or when changing themes, best to add inline in `head` to avoid FOUC
+if (localStorage.'color-theme' === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+  document.documentElement.classList.add('dark');
+} else {
+  document.documentElement.classList.remove('dark');
+};
 
+function setDarkTheme() {
+  document.documentElement.classList.add("dark");
+  localStorage.'color-theme' = "dark";
+};
+
+function setLightTheme() {
+  document.documentElement.classList.remove("dark");
+  localStorage.'color-theme' = "light";
+};
+
+function onThemeSwitcherItemClick(event) {
+  const theme = event.target.dataset.theme;
+
+  if (theme === "system") {
+    localStorage.removeItem("color-theme");
+    setSystemTheme();
+  } else if (theme === "dark") {
+    setDarkTheme();
+  } else {
+    setLightTheme();
+  }
+};
+
+const themeSwitcherItems = document.querySelectorAll("#theme-toggle");
+themeSwitcherItems.forEach((item) => {
+  item.addEventListener("click", onThemeSwitcherItemClick);
+});
+  </script>
   <!-- Allow any inheriting page to extend head with additional assets -->
   {% block head %}{% endblock %}
 </head>

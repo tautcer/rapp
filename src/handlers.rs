@@ -24,44 +24,40 @@ pub async fn another_page() -> impl IntoResponse {
 
 pub async fn navbar_items(State(state): State<Arc<AppState>>) -> impl IntoResponse {
     debug!("rendering navbar");
+    let _ = state.page_data.lock().unwrap().nav_items.items;
     let lock = state.page_data.lock().unwrap();
     let items = lock.clone();
     let template = NavItems { items: items.nav_items.items };
+    // render!("navbar", template, state.page_data)
     HtmlTemplate("navbar", template)
-}
-
-#[derive(Clone)]
-struct NavItem {
-    href: String,
-    name: String,
 }
 
 #[derive(Template, Clone)]
 #[template(path = "navbar.html")]
 pub struct NavItems {
-    items: Vec<NavItem>,
+    items: Vec<(String, String)>,
 }
 
 impl Default for NavItems {
     fn default() -> Self {
         NavItems {
             items: vec![
-                NavItem {
-                    href: String::from("/"),
-                    name: String::from("Home"),
-                },
-                NavItem {
-                    href: String::from("/another-page"),
-                    name: String::from("Another page"),
-                },
-                NavItem {
-                    href: String::from("/about"),
-                    name: String::from("About"),
-                },
-                NavItem {
-                    href: String::from("/contact"),
-                    name: String::from("Contact"),
-                },
+                (
+                    String::from("/"),
+                     String::from("Home"),
+                ),
+                (
+                    String::from("/another-page"),
+                    String::from("Another page"),
+                ),
+                (
+                    String::from("/about"),
+                    String::from("About"),
+                ),
+                (
+                    String::from("/contact"),
+                    String::from("Contact"),
+                ),
             ],
         }
     }
