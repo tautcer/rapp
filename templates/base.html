@@ -13,21 +13,26 @@
   <script>
     (function () {
         var userCurrentPreference = localStorage.getItem("theme");
-        if (userCurrentPreference === "dark") document.documentElement.classList.toggle("dark");
-        else if (userCurrentPreference === "light") document.documentElement.classList.toggle("light");
+        if (userCurrentPreference === "dark") document.documentElement.classList.add("dark");
+        else if (userCurrentPreference === "light") document.documentElement.classList.remove("dark");
+        else {
+          document.documentElement.classList.add("dark");
+          localStorage.setItem("theme", "dark");
+        }
     })();
 
     function onThemeSwitcherItemClick() {
-      const userSystemPreference = window.matchMedia('(prefers-color-scheme: dark)').matches ? "dark" : "light";
+      const userSystemPreference = localStorage.getItem("theme");
       const toggleClass = userSystemPreference === "dark" ? "light" : "dark";
-      document.documentElement.classList.toggle(toggleClass);
+      if (userSystemPreference == "dark") document.documentElement.classList.remove("dark");
+      else document.documentElement.classList.add("dark");
 
       // Obtain which is the user's current preference for our website
       const userCurrentPreference = document.documentElement.classList.contains(toggleClass)
         ? toggleClass
         : userSystemPreference;
       // Save it in local storage
-      localStorage.setItem("theme", userCurrentPreference);
+      localStorage.setItem("theme", toggleClass);
     };
   </script>
   <!-- Allow any inheriting page to extend head with additional assets -->
